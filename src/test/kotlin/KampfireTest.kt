@@ -1,6 +1,7 @@
 package de.nycode.kampfire
 
 import de.nycode.kampfire.translation.SimpleTranslation
+import de.nycode.kampfire.translation.SimpleTranslationSource
 import de.nycode.kampfire.translation.TranslationSource
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -18,26 +19,41 @@ object KampfireTest : CoroutineScope by TestCoroutineScope() {
 
     @Test
     fun `Test Kampfire Builder`() = runBlockingTest {
-        val source = mockk<TranslationSource<SimpleTranslation>>()
-
         val expected = "Hello World!"
         val translationKey = "testkey"
 
-        coEvery { source.getTranslation(translationKey) } returns SimpleTranslation(
-            translationKey,
-            expected
-        )
-
-        val kampfire: Kampfire<SimpleTranslation> = kampfire<SimpleTranslation> {
-            translationSource = source
+        val (kampfire: Kampfire<SimpleTranslation>, source: SimpleTranslationSource)
+                = createTestKampfire<SimpleTranslation, SimpleTranslationSource> { source ->
+            coEvery { source.getTranslation(translationKey) } returns SimpleTranslation(
+                translationKey,
+                expected
+            )
         }
 
-        val translation = kampfire.getTranslation(translationKey)
+        val translation = kampfire.getTranslation(translationKey)!!
 
         coVerify { source.getTranslation(translationKey) }
         confirmVerified(source)
 
         assertEquals(translation.translation, expected)
         assertEquals(translation.translationKey, translationKey)
+    }
+
+    @Test
+    fun `Test Simple Kampfire Builder`() = runBlockingTest {
+        val expected = "Hello World!"
+        val translationKey = "testkey"
+
+        val source = mockk<TranslationSource<SimpleTranslation>>()
+
+        coEvery { source.getTranslation(translationKey) } returns SimpleTranslation(translationKey, expected)
+
+        val kampfire = kampfire {
+            translationSource = source
+        }
+
+        val (key, translation) = kampfire.getTranslation(translationKey)!!
+        assertEquals(expected, translation)
+        assertEquals(translationKey, key)
     }
 }

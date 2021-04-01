@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "1.4.31"
+    `maven-publish`
 }
 
 group = "de.nycode"
@@ -39,6 +40,71 @@ kotlin {
     explicitApi()
 }
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 tasks.test {
     useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            artifactId = "kampfire"
+            from(components["java"])
+            versionMapping {
+                usage("java-api") {
+                    fromResolutionOf("runtimeClasspath")
+                }
+                usage("java-runtime") {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name.set("kampfire")
+                description.set("i18n for Kyori Adventure for Java/Kotlin")
+                url.set("https://github.com/NyCodeGHG/kampfire")
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("nycode")
+                        name.set("NyCode")
+                        email.set("nico@nycode.de")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:git://github.com/NyCodeGHG/kampfire")
+                    developerConnection.set("scm:git:ssh://git@github.com:NyCodeGHG/kampfire.git")
+                }
+            }
+        }
+        repositories {
+            maven {
+                val baseUrl = "https://nycode.jfrog.io/artifactory/"
+                val releasesUrl = uri("${baseUrl}nycode-releases/")
+                val snapshotsUrl = uri("${baseUrl}nycode-snapshots/")
+                url = if (version.toString().endsWith("SNAPSHOT")) snapshotsUrl else releasesUrl
+
+                val artifactoryUsername = System.getenv("ARTIFACTORY_USERNAME")
+                val artifactoryPassword = System.getenv("ARTIFACTORY_PASSWORD")
+                credentials {
+                    username = artifactoryUsername
+                    password = artifactoryPassword
+                }
+            }
+        }
+    }
+}
+
+tasks.javadoc {
+    if (JavaVersion.current().isJava9Compatible) {
+        (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
+    }
 }

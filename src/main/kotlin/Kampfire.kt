@@ -9,14 +9,14 @@ import de.nycode.kampfire.translation.TranslationSource
 
 public class KampfireOptions<T : Translation>(
     public var locales: List<KampfireLocale> = listOf(KampfireLocales.AMERICAN_ENGLISH, KampfireLocales.GERMAN),
-    internal var translationSource: TranslationSource<T>? = null
+    public var translationSource: TranslationSource<T>? = null
 )
 
 public class Kampfire<T : Translation> constructor(options: KampfireOptions<T>) {
     internal val locales: List<KampfireLocale> = options.locales
     internal val translationSource: TranslationSource<T> = options.translationSource ?: error("Translation Source is missing!")
 
-    public suspend fun getTranslation(key: String): T {
+    public suspend fun getTranslation(key: String): T? {
         return translationSource.getTranslation(key)
     }
 }
@@ -28,6 +28,6 @@ public fun <T : Translation> kampfire(builder: KampfireOptions<T>.() -> Unit): K
 @JvmName("simpleKampfire")
 public fun kampfire(builder: KampfireOptions<SimpleTranslation>.() -> Unit): Kampfire<SimpleTranslation> =
     kampfire<SimpleTranslation> {
-        builder()
         translationSource = SimpleTranslationSource()
+        builder()
     }
