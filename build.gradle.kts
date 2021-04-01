@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "1.4.31"
     `maven-publish`
+    jacoco
 }
 
 group = "de.nycode"
@@ -47,6 +48,11 @@ java {
 
 tasks.test {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
 }
 
 publishing {
