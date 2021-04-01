@@ -1,3 +1,3 @@
 package de.nycode.kampfire.translation
 
-public data class SimpleTranslation(val translationKey: String, val translation: String) : Translation
+public data class SimpleTranslation(public val translationKey: String, public val translation: String) : Translation
