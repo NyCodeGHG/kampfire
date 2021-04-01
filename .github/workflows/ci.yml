@@ -23,3 +23,8 @@ jobs:
             ~/.gradle
       - name: Build with Gradle
         run: chmod +x ./gradlew && ./gradlew check
+      - name: Upload Codecov Reports
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unittests

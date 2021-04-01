@@ -53,6 +53,9 @@ tasks.test {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
+    reports {
+        xml.isEnabled = true
+    }
 }
 
 publishing {
