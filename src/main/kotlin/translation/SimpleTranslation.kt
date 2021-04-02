@@ -1,13 +1,22 @@
 package de.nycode.kampfire.translation
 
+import de.nycode.kampfire.locales.KampfireLocale
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.text.Component
 
 /**
  * Represents a simple translation containing a [translationKey] and the associated [translation]
  */
-public data class SimpleTranslation(public val translationKey: String, public val translation: String) : Translation {
+public data class SimpleTranslation(
+    public val locale: KampfireLocale,
+    public val translationKey: String,
+    public val translation: String
+) : Translation {
     override fun sendMessage(audience: Audience) {
-        audience.sendMessage(Component.text(translation))
+        audience.sendMessage(toComponent())
+    }
+
+    public fun toComponent(): Component {
+        return Component.text(translation)
     }
 }

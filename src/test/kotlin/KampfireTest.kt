@@ -1,5 +1,6 @@
 package de.nycode.kampfire
 
+import de.nycode.kampfire.locales.KampfireLocales
 import de.nycode.kampfire.translation.SimpleTranslation
 import de.nycode.kampfire.translation.SimpleTranslationSource
 import de.nycode.kampfire.translation.TranslationSource
@@ -22,17 +23,23 @@ object KampfireTest : CoroutineScope by TestCoroutineScope() {
         val expected = "Hello World!"
         val translationKey = "testkey"
 
-        val (kampfire: Kampfire<SimpleTranslation>, source: SimpleTranslationSource)
+        val (kampfire: Kampfire<SimpleTranslation, SimpleTranslationSource>, source: SimpleTranslationSource)
                 = createTestKampfire<SimpleTranslation, SimpleTranslationSource> { source ->
-            coEvery { source.getTranslation(translationKey) } returns SimpleTranslation(
+            coEvery {
+                source.getTranslation(
+                    KampfireLocales.AMERICAN_ENGLISH,
+                    translationKey
+                )
+            } returns SimpleTranslation(
+                KampfireLocales.AMERICAN_ENGLISH,
                 translationKey,
                 expected
             )
         }
 
-        val translation = kampfire.getTranslation(translationKey)!!
+        val translation = kampfire.getTranslation(KampfireLocales.AMERICAN_ENGLISH, translationKey)!!
 
-        coVerify { source.getTranslation(translationKey) }
+        coVerify { source.getTranslation(KampfireLocales.AMERICAN_ENGLISH, translationKey) }
         confirmVerified(source)
 
         assertEquals(translation.translation, expected)
@@ -46,13 +53,17 @@ object KampfireTest : CoroutineScope by TestCoroutineScope() {
 
         val source = mockk<TranslationSource<SimpleTranslation>>()
 
-        coEvery { source.getTranslation(translationKey) } returns SimpleTranslation(translationKey, expected)
+        coEvery { source.getTranslation(KampfireLocales.AMERICAN_ENGLISH, translationKey) } returns SimpleTranslation(
+            KampfireLocales.AMERICAN_ENGLISH,
+            translationKey,
+            expected
+        )
 
-        val kampfire = kampfire {
+        val kampfire = kampfire<SimpleTranslation, TranslationSource<SimpleTranslation>> {
             translationSource = source
         }
 
-        val (key, translation) = kampfire.getTranslation(translationKey)!!
+        val (_, key, translation) = kampfire.getTranslation(KampfireLocales.AMERICAN_ENGLISH, translationKey)!!
         assertEquals(expected, translation)
         assertEquals(translationKey, key)
     }
