@@ -1,9 +1,9 @@
 package de.nycode.kampfire
 
 import de.nycode.kampfire.locales.KampfireLocales
-import de.nycode.kampfire.translation.SimpleTranslation
-import de.nycode.kampfire.translation.SimpleTranslationSource
 import de.nycode.kampfire.translation.TranslationSource
+import de.nycode.kampfire.translation.simple.SimpleTranslation
+import de.nycode.kampfire.translation.simple.SimpleTranslationSource
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified

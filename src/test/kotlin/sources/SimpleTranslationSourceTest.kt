@@ -1,8 +1,8 @@
 package de.nycode.kampfire.sources
 
-import de.nycode.kampfire.kampfire
 import de.nycode.kampfire.locales.KampfireLocales
-import de.nycode.kampfire.translation.translatesTo
+import de.nycode.kampfire.translation.simple.kampfire
+import de.nycode.kampfire.translation.simple.translatesTo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import kotlin.test.Test

@@ -1,6 +1,7 @@
-package de.nycode.kampfire.translation
+package de.nycode.kampfire.translation.simple
 
 import de.nycode.kampfire.locales.KampfireLocale
+import de.nycode.kampfire.translation.Translation
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.text.Component
 
