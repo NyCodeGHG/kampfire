@@ -1,9 +1,12 @@
 package de.nycode.kampfire
 
-import de.nycode.kampfire.locales.KampfireLocales
+import de.nycode.kampfire.locales.KampfireLocales.AMERICAN_ENGLISH
+import de.nycode.kampfire.locales.KampfireLocales.GERMAN
 import de.nycode.kampfire.translation.TranslationSource
 import de.nycode.kampfire.translation.simple.SimpleTranslation
 import de.nycode.kampfire.translation.simple.SimpleTranslationSource
+import de.nycode.kampfire.translation.simple.kampfire
+import de.nycode.kampfire.translation.simple.translatesTo
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
@@ -24,22 +27,22 @@ object KampfireTest : CoroutineScope by TestCoroutineScope() {
         val translationKey = "testkey"
 
         val (kampfire: Kampfire<SimpleTranslation, SimpleTranslationSource>, source: SimpleTranslationSource)
-                = createTestKampfire<SimpleTranslation, SimpleTranslationSource> { source ->
+                = createMockKampfire<SimpleTranslation, SimpleTranslationSource> { source ->
             coEvery {
                 source.getTranslation(
-                    KampfireLocales.AMERICAN_ENGLISH,
+                    AMERICAN_ENGLISH,
                     translationKey
                 )
             } returns SimpleTranslation(
-                KampfireLocales.AMERICAN_ENGLISH,
+                AMERICAN_ENGLISH,
                 translationKey,
                 expected
             )
         }
 
-        val translation = kampfire.getTranslation(KampfireLocales.AMERICAN_ENGLISH, translationKey)!!
+        val translation = kampfire.getTranslation(AMERICAN_ENGLISH, translationKey)!!
 
-        coVerify { source.getTranslation(KampfireLocales.AMERICAN_ENGLISH, translationKey) }
+        coVerify { source.getTranslation(AMERICAN_ENGLISH, translationKey) }
         confirmVerified(source)
 
         assertEquals(translation.translation, expected)
@@ -53,8 +56,8 @@ object KampfireTest : CoroutineScope by TestCoroutineScope() {
 
         val source = mockk<TranslationSource<SimpleTranslation>>()
 
-        coEvery { source.getTranslation(KampfireLocales.AMERICAN_ENGLISH, translationKey) } returns SimpleTranslation(
-            KampfireLocales.AMERICAN_ENGLISH,
+        coEvery { source.getTranslation(AMERICAN_ENGLISH, translationKey) } returns SimpleTranslation(
+            AMERICAN_ENGLISH,
             translationKey,
             expected
         )
@@ -63,8 +66,29 @@ object KampfireTest : CoroutineScope by TestCoroutineScope() {
             translationSource = source
         }
 
-        val (_, key, translation) = kampfire.getTranslation(KampfireLocales.AMERICAN_ENGLISH, translationKey)!!
+        val (_, key, translation) = kampfire.getTranslation(AMERICAN_ENGLISH, translationKey)!!
         assertEquals(expected, translation)
         assertEquals(translationKey, key)
+    }
+
+    @Test
+    fun `Fallback to American English`() = runBlockingTest {
+        val (kampfire, _) = createSimpleKampfire {
+            it.registerTranslation("testkey" translatesTo "test_us" withLanguage AMERICAN_ENGLISH)
+        }
+        val translation = kampfire.getTranslation(GERMAN, "testkey")
+        assertEquals("test_us", translation?.translation)
+    }
+
+    @Test
+    fun `Fallback to other Language`() = runBlockingTest {
+        val kampfire = kampfire {
+            fallbackLocale = GERMAN
+            initializeSource {
+                registerTranslation("testkey" translatesTo "test_de" withLanguage GERMAN)
+            }
+        }
+        val translation = kampfire.getTranslation(AMERICAN_ENGLISH, "testkey")
+        assertEquals("test_de", translation?.translation)
     }
 }
