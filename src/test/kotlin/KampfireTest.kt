@@ -91,4 +91,11 @@ object KampfireTest : CoroutineScope by TestCoroutineScope() {
         val translation = kampfire.getTranslation(AMERICAN_ENGLISH, "testkey")
         assertEquals("test_de", translation?.translation)
     }
+
+    @Test
+    fun `Global kampfire`() = runBlockingTest {
+        val kampfire = kampfire {
+            init
+        }
+    }
 }
